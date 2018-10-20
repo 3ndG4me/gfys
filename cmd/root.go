@@ -15,7 +15,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "gfys",
 	Short: "An automated XSS testing tool!",
-	Long:  `Expltive ASCII Art goes here`,
+	Long:  `Explitive ASCII Art goes here`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
