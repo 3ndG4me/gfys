@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 // Flags
 var (
-	target string
+	target  string
+	payload string
 )
 
 // reflectCmd represents the reflect command
@@ -45,20 +47,29 @@ Examples:
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		//Get current working directory
 		workingDir, err := os.Getwd()
 
 		if err != nil {
 			fmt.Println("An error occurred while getting you current working directory: ", err)
 		}
 
+		//Construct filepath to target file in current working directory
 		filePath := filepath.Join(workingDir, target)
 
+		//Check if the file exists or if an absolute path was provided instead. Assume a single URL is provided if file checks fail
 		file, err := os.Stat(filePath)
 
 		if err != nil {
 			file, err = os.Stat(target)
 			if err != nil {
+				//Request single URL
 				response := getRequest(target)
+				if strings.Contains(response, payload) {
+					fmt.Println("XSS DETECTED!")
+				} else {
+					fmt.Println("Page not vulnerable to ", payload)
+				}
 				fmt.Println(response)
 			} else {
 				fmt.Println("Do some file stuffz not in working dir (returning IsDir for now) ", file.IsDir())
@@ -72,6 +83,7 @@ Examples:
 
 func getRequest(url string) string {
 
+	// Construct GET request and return the response
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -102,4 +114,5 @@ func init() {
 	// is called directly, e.g.:
 	// reflectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	reflectCmd.Flags().StringVarP(&target, "target", "t", "", "Target(s), can be a single templated URL or a File of templated URLs")
+	reflectCmd.Flags().StringVarP(&payload, "payload", "p", "", "XSS Payload(s) to inject, can be single payload or a File of payloads")
 }
